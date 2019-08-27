@@ -5,7 +5,7 @@ import vinView from './tx-vin'
 import voutView from './tx-vout'
 import privacyAnalysisView from './tx-privacy-analysis'
 import segwitGainsView from './tx-segwit-gains'
-import { formatSat, formatTime, formatVMB, formatNumber } from './util'
+import {formatSat, formatTime, formatVMB, formatNumber, formatHex} from './util'
 import { isAnyConfidential, isAllNative, isRbf, outTotal, updateQuery } from '../util'
 
 // show a warning for payments paying more than 1.2x the recommended amount for 2 blocks confirmation
@@ -56,10 +56,20 @@ export const txBox = (tx, { t, openTx, tipHeight, spends, query, ...S }) => {
           <div className="direction-arrow"></div>
         </div>
       </div>
-
-
+      
       <div className="vouts">{tx.vout.map((out, index) =>
         voutView(out, { ...vopt, index, spend: findSpend(spends, tx.txid, index) }))}
+      </div>
+    </div>
+    <div className="footer">
+      <div><span>{t`nTimeLock:`} <span className="mono">{formatHex(tx.locktime)}</span></span></div>
+      <div></div>
+      <div>
+        <span className="amount">{t`${formatSat(tx.fee)}`}&nbsp;{t`Fee`}</span>
+        <span className="amount">{
+              isAnyConfidential(tx) ? t`Confidential`
+              : isAllNative(tx)     ? formatSat(outTotal(tx))
+              : ''}</span>
       </div>
     </div>
     <div className="footer">
@@ -67,10 +77,6 @@ export const txBox = (tx, { t, openTx, tipHeight, spends, query, ...S }) => {
       <div></div>
       <div>
         {tx.status && <span>{confirmationText(tx.status, tipHeight, t)} {!tx.status.confirmed && isRbf(tx) ? t`(RBF)` : ''}</span>}
-        <span className="amount">{
-              isAnyConfidential(tx) ? t`Confidential`
-              : isAllNative(tx)     ? formatSat(outTotal(tx))
-              : ''}</span>
       </div>
     </div>
   </div>
